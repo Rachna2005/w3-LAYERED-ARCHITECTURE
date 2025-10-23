@@ -21,12 +21,6 @@ class QuizConsole {
         quiz.allPlayerScores();
        break;
       } 
-
-        for(var player in quiz.players){
-          if(player.name == nameInput){
-            break;
-          }
-        }
       quiz.answers.clear();
     
         for (var question in quiz.questions) {
