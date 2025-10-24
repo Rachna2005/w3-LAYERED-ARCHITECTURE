@@ -15,7 +15,6 @@ class Question {
       required this.goodChoice,
       this.point = 1})
       : id = id ?? Uuid().v4();
-
 }
 
 class Answer {
@@ -29,29 +28,26 @@ class Answer {
   bool isGood() {
     return this.answerChoice == question.goodChoice;
   }
-
 }
 
-class Quiz {
+class Player {
   final String id;
-  List<Question> questions;
+  final String name;
   List<Answer> answers = [];
-  List<Player> players = [];
+  Player({String? id, required this.name}) : id = id ?? const Uuid().v4();
 
-  Quiz({String? id, required this.questions}) : id = id ?? const Uuid().v4();
-
-  void addAnswer(Answer asnwer) {
-    this.answers.add(asnwer);
+  void addAnswer(Answer answer) {
+    answers.add(answer);
   }
 
   int getScoreInPercentage() {
-    int totalSCore = 0;
+    int totalScore = 0;
     for (Answer answer in answers) {
       if (answer.isGood()) {
-        totalSCore++;
+        totalScore++;
       }
     }
-    return ((totalSCore / questions.length) * 100).toInt();
+    return answers.isEmpty ? 0 : ((totalScore / answers.length) * 100).toInt();
   }
 
   int getScoreInPoint() {
@@ -64,55 +60,37 @@ class Quiz {
     return totalPoint;
   }
 
-  void addPlayerOrUpdate(String name, int points, int percent) {
-    Player? oldPlayer;
-    for (var player in players) {
-      if (player.name == name) {
-        oldPlayer = player;
-        break;
+  @override
+  String toString() {
+    return '$name: ${getScoreInPoint()} points ${getScoreInPercentage()}%';
+  }
+}
+
+class Quiz {
+  final String id;
+  List<Question> questions;
+  List<Player> players = [];
+
+  Quiz({String? id, required this.questions}) : id = id ?? const Uuid().v4();
+
+  void addPlayer(Player player) {
+    // Find if player already exists and update their answers
+    for (Player p in players) {
+      if (p.name.toLowerCase() == player.name.toLowerCase()) {
+        p.answers = player.answers;
+        return;
       }
     }
-    if (oldPlayer != null) {
-      oldPlayer.updateScores(points, percent);
-    } else {
-      Player newPlayer =
-          Player(name: name, lastPoints: points, lastPercentage: percent);
-      players.add(newPlayer);
-    }
+    // If not found, add new player
+    players.add(player);
   }
-
-  void allPlayerScores() {
+  void displayAllPlayerScores() {
     if (players.isEmpty) {
-      print('No player yet');
+      print('No players yet');
       return;
     }
     for (var player in players) {
-      print('Player : $player');
+      print('Player: $player');
     }
-  }
-
-}
-
-class Player {
-  final String id;
-  final String name;
-  int lastPoints;
-  int lastPercentage;
-
-  Player(
-      {String? id,
-      required this.name,
-      this.lastPoints = 0,
-      this.lastPercentage = 0})
-      : id = id ?? const Uuid().v4();
-
-  void updateScores(int points, int percentage) {
-    lastPoints = points;
-    lastPercentage = percentage;
-  }
-
-  @override
-  String toString() {
-    return '$name: $lastPoints points $lastPercentage%';
   }
 }
